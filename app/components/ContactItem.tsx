@@ -1,5 +1,12 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React from "react";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Pressable,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // You can use react-native-vector-icons too
 
 interface Contact {
   id: string;
@@ -11,7 +18,7 @@ interface Contact {
 interface ContactItemProps {
   contact: Contact;
   onPress: () => void;
-  onCallPress: (contact: Contact) => void;  
+  onCallPress: (contact: Contact) => void;
 }
 
 const ContactItem = ({ contact, onPress, onCallPress }: ContactItemProps) => (
@@ -20,25 +27,24 @@ const ContactItem = ({ contact, onPress, onCallPress }: ContactItemProps) => (
       <Text style={styles.contactName}>{contact.name}</Text>
       <Text>{contact.phone}</Text>
     </View>
-    
-    <TouchableOpacity
-      onPress={() => onCallPress(contact)}  
-      style={{ padding: 8 }}  
+    <Pressable
+      onPress={() => onCallPress(contact)}
+      style={styles.callIcon}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >
-      
-    </TouchableOpacity>
+      <Ionicons name="call" size={24} color="#007AFF" />
+    </Pressable>
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
   contactItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 0.5,
-    borderBottomColor: '#ccc',
-    justifyContent: 'space-between',
+    borderBottomColor: "#ccc",
+    justifyContent: "space-between",
     paddingHorizontal: 10,
   },
   contactInfo: {
@@ -46,7 +52,10 @@ const styles = StyleSheet.create({
   },
   contactName: {
     fontSize: 18,
-    fontWeight: '500',
+    fontWeight: "500",
+  },
+  callIcon: {
+    padding: 8,
   },
 });
 

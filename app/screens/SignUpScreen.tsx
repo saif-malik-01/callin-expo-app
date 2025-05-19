@@ -42,12 +42,12 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
       );
       const user = userCredential.user;
 
-      //  Save user info to Firestore
+      
       await firestore().collection("users").doc(user.uid).set({
         socketId: null,
         lastSeen: firestore.FieldValue.serverTimestamp(),
         status: "online",
-        fcmToken: null, // update this when FCM is set up
+        fcmToken: null, 
       });
     } catch (error: any) {
       Alert.alert("Signup Failed", error.message);

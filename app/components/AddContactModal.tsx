@@ -44,7 +44,7 @@ const AddContactModal = ({
       return;
     }
 
-    // Simple email format check
+   
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(newEmail.trim())) {
       Alert.alert('Error', 'Please enter a valid email');
@@ -53,23 +53,27 @@ const AddContactModal = ({
 
     setLoading(true);
     try {
-      // Check if user with this email exists in Firestore
-      const querySnapshot = await firestore()
-        .collection('users')
-        .where('email', '==', newEmail.trim().toLowerCase())
-        .limit(1)
-        .get();
+      const emailToCheck = newEmail.trim().toLowerCase();
+console.log('Checking for email:', emailToCheck);
+
+     
+    const querySnapshot = await firestore()
+  .collection('users')
+  .where('email', '==', emailToCheck)
+  .limit(1)
+  .get();
 
       if (querySnapshot.empty) {
-        Alert.alert(
-          'User Not Found',
-          'No user with this email is registered. Please check the email or ask them to sign up first.'
-        );
-      } else {
-        // User exists, save contact
-        onSave(newName.trim(), newPhone.trim(), newEmail.trim().toLowerCase());
-        onClose();
-      }
+  console.log('No matching user found');
+  Alert.alert(
+    'User Not Found',
+    'No user with this email is registered. Please check the email or ask them to sign up first.'
+  );
+} else {
+  console.log('User found:', querySnapshot.docs[0].data());
+  onSave(newName.trim(), newPhone.trim(), emailToCheck);
+  onClose();
+}
     } catch (error: any) {
       Alert.alert('Error', 'Something went wrong. Please try again later.');
       console.error(error);
