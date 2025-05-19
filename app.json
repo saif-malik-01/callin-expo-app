@@ -9,14 +9,27 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bitcode": false
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.CAMERA",
+        "android.permission.INTERNET",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WAKE_LOCK",
+        "android.permission.BLUETOOTH"
+      ],
+      "package": "com.hyper0786.calliexpoapp"
     },
     "web": {
       "bundler": "metro",
@@ -25,6 +38,19 @@
     },
     "plugins": [
       "expo-router",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/messaging",
+       [
+        "react-native-permissions",
+        {
+          "iosPermissions": [
+            "Camera",
+            "Microphone"
+          ]
+        }
+      ],
+      "@config-plugins/react-native-webrtc",
       [
         "expo-splash-screen",
         {
@@ -33,10 +59,18 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bd75fedd-0144-4658-80c1-162440e29be8"
+      }
+    },
+    "owner": "hyper0786"
   }
 }
