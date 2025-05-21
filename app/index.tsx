@@ -6,10 +6,11 @@ import { Platform, StatusBar } from "react-native";
 import { PERMISSIONS, request, RESULTS } from "react-native-permissions";
 import ContactsScreen from "./screens/ContactScreen";
 import LoginScreen from "./screens/LoginScreen";
-import CallScreen from "./screens/PhoneScreen";
+import PhoneScreen from "./screens/PhoneScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import SignupScreen from "./screens/SignUpScreen";
-
+import CallScreen from "./screens/CallScreen";
+import { NavigationContainer } from '@react-navigation/native';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -23,7 +24,7 @@ function TabNavigator() {
       })}
     >
       <Tab.Screen name="Contacts" component={ContactsScreen} />
-      <Tab.Screen name="Calls" component={CallScreen} />
+      <Tab.Screen name="Call" component={PhoneScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
@@ -61,10 +62,14 @@ function App() {
 
   return (
     <>
+    
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
-          <Stack.Screen name="Main" component={TabNavigator} />
+          <>
+          <Stack.Screen name="Main" component={TabNavigator}   options={{ headerShown: false }} />
+            <Stack.Screen name="CallScreen" component={CallScreen} />
+            </>
         ) : (
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
@@ -72,6 +77,7 @@ function App() {
           </>
         )}
       </Stack.Navigator>
+    
     </>
   );
 }

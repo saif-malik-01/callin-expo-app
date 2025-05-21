@@ -1,20 +1,31 @@
-import firestore from '@react-native-firebase/firestore';
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Modal,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+  ActivityIndicator,
+  Alert,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import { getAuth } from "@react-native-firebase/auth";
+import {
+  getFirestore,
+  collection,
+  doc,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  limit,
+  serverTimestamp,
+} from "@react-native-firebase/firestore";
 
 interface Props {
   visible: boolean;
   onClose: () => void;
-  onSave: (name: string, phone: string, email: string) => void;
   newName: string;
   newPhone: string;
   newEmail: string;
@@ -27,7 +38,6 @@ interface Props {
 const AddContactModal = ({
   visible,
   onClose,
-  onSave,
   newName,
   newPhone,
   newEmail,
@@ -38,45 +48,64 @@ const AddContactModal = ({
 }: Props) => {
   const [loading, setLoading] = useState(false);
 
+  const auth = getAuth();
+  const firestore = getFirestore();
+
   const handleSave = async () => {
     if (!newName.trim() || !newPhone.trim() || !newEmail.trim()) {
-      Alert.alert('Error', 'Please fill all fields');
+      Alert.alert("Error", "Please fill all fields");
       return;
     }
 
-   
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(newEmail.trim())) {
-      Alert.alert('Error', 'Please enter a valid email');
+      Alert.alert("Error", "Please enter a valid email");
       return;
     }
 
     setLoading(true);
+
     try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        Alert.alert("Error", "User not authenticated");
+        setLoading(false);
+        return;
+      }
+
       const emailToCheck = newEmail.trim().toLowerCase();
-console.log('Checking for email:', emailToCheck);
 
-     
-    const querySnapshot = await firestore()
-  .collection('users')
-  .where('email', '==', emailToCheck)
-  .limit(1)
-  .get();
+      // Query users collection for email
+      const usersRef = collection(firestore, "users");
+      const q = query(usersRef, where("email", "==", emailToCheck), limit(1));
+      const userSnapshot = await getDocs(q);
 
-      if (querySnapshot.empty) {
-  console.log('No matching user found');
-  Alert.alert(
-    'User Not Found',
-    'No user with this email is registered. Please check the email or ask them to sign up first.'
-  );
-} else {
-  console.log('User found:', querySnapshot.docs[0].data());
-  onSave(newName.trim(), newPhone.trim(), emailToCheck);
-  onClose();
-}
-    } catch (error: any) {
-      Alert.alert('Error', 'Something went wrong. Please try again later.');
+      if (userSnapshot.empty) {
+        Alert.alert(
+          "User Not Found",
+          "No user with this email is registered. Please check the email or ask them to sign up first."
+        );
+        setLoading(false);
+        return;
+      }
+
+      // Add contact document in current user's contacts subcollection
+      const contactsRef = collection(firestore, "users", currentUser.uid, "contacts");
+      await addDoc(contactsRef, {
+        name: newName.trim(),
+        phone: newPhone.trim(),
+        email: emailToCheck,
+        createdAt: serverTimestamp(),
+      });
+
+      Alert.alert("Success", "Contact added successfully!");
+      onClose();
+      setNewName("");
+      setNewPhone("");
+      setNewEmail("");
+    } catch (error) {
       console.error(error);
+      Alert.alert("Error", "Something went wrong. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -153,11 +182,11 @@ console.log('Checking for email:', emailToCheck);
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     marginHorizontal: 20,
     marginBottom: 40,
     padding: 24,
@@ -167,66 +196,66 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 5,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     borderRadius: 3,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 20,
   },
   modalTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 20,
-    textAlign: 'center',
-    color: '#111',
+    textAlign: "center",
+    color: "#111",
   },
   label: {
     fontSize: 15,
-    color: '#444',
+    color: "#444",
     marginBottom: 6,
     marginTop: 12,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#222',
-    backgroundColor: '#fafafa',
+    color: "#222",
+    backgroundColor: "#fafafa",
   },
   buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 28,
   },
   smallButton: {
-    backgroundColor: '#0066ff',
+    backgroundColor: "#0066ff",
     flex: 1,
     marginRight: 10,
     paddingVertical: 14,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   disabledButton: {
-    backgroundColor: '#8fb3ff',
+    backgroundColor: "#8fb3ff",
   },
   smallButtonSecondary: {
-    backgroundColor: '#eee',
+    backgroundColor: "#eee",
     flex: 1,
     marginLeft: 10,
     paddingVertical: 14,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '700',
+    color: "#fff",
+    fontWeight: "700",
     fontSize: 16,
   },
   buttonSecondaryText: {
-    color: '#444',
-    fontWeight: '600',
+    color: "#444",
+    fontWeight: "600",
     fontSize: 16,
   },
 });

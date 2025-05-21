@@ -44,6 +44,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
 
       
       await firestore().collection("users").doc(user.uid).set({
+         email: user.email,
         socketId: null,
         lastSeen: firestore.FieldValue.serverTimestamp(),
         status: "online",
